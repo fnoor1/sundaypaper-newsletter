@@ -16,7 +16,7 @@ function renderTicket(id){const t=EDITION.teams.find(t=>t.id===Number(id));if(!t
 document.querySelectorAll('[data-team]').forEach(button=>button.addEventListener('click',()=>renderTicket(button.dataset.team)));
 const savedTeam=EDITION.teams.find(t=>t.id===Number(readStore('team')));if(savedTeam){renderTicket(savedTeam.id);desk.open=false;invite.innerHTML='Back for '+safe(savedTeam.name)+'? <span aria-hidden="true">↗</span>';}
 const resume=document.getElementById('resume'),savedChapter=Number(readStore('chapter'));if(savedChapter>1&&savedChapter<=EDITION.chapters.length){resume.hidden=false;resume.href='#page-'+String(savedChapter).padStart(2,'0');resume.textContent='Continue at '+EDITION.chapters[savedChapter-1]+' →';const desktopResume=document.getElementById('desktop-resume');desktopResume.hidden=false;desktopResume.href=resume.href;desktopResume.textContent=resume.textContent;}
-const links=[...document.querySelectorAll('nav a')];
+const links=[...document.querySelectorAll('nav a[data-page]')];
 const observer=new IntersectionObserver(entries=>{const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];if(!visible)return;const num=Number(visible.target.id.slice(-2));for(const link of links){if(link.getAttribute('href')==='#'+visible.target.id)link.setAttribute('aria-current','true');else link.removeAttribute('aria-current');}document.getElementById('chapter-position').textContent=String(num).padStart(2,'0')+' / 08 · '+EDITION.chapters[num-1];writeStore('chapter',String(num));},{rootMargin:'-100px 0px -25% 0px',threshold:[0,.05,.15,.3]});document.querySelectorAll('.page').forEach(page=>observer.observe(page));
 document.querySelectorAll('.phone-chapters nav a').forEach(link=>link.addEventListener('click',()=>link.closest('details').open=false));
 let ticking=false;function updateProgress(){const progress=document.getElementById('reading-progress');const span=document.documentElement.scrollHeight-innerHeight;progress.value=span>0?Math.max(0,Math.min(100,scrollY/span*100)):0;ticking=false;}
@@ -32,3 +32,31 @@ form.addEventListener('submit',event=>{event.preventDefault();const pick=current
 copy.addEventListener('click',async()=>{const pick=currentPick();if(!pick)return;const text=takeText(pick);try{await navigator.clipboard.writeText(text);status.textContent='Your take is copied. Bring the receipt to the chat.';}catch{fallback.hidden=false;fallback.value=text;fallback.focus();fallback.select();status.textContent='Select and copy your take below.';}});
 
 const phone=matchMedia('(max-width:850px)');phone.addEventListener('change',event=>{if(event.matches)setReading(false);});
+const receiptIssuePath="2026/week-4/";
+const receiptIssueLabel="Sunday Paper \u00b7 First Take $2026 \u00b7 Week 4";
+
+const receiptTabs=[...document.querySelectorAll('.receipt-tabs [role="tab"]')];
+const receiptPanels=receiptTabs.map(tab=>document.getElementById(tab.getAttribute('aria-controls')));
+function chooseReceipt(index,focus=false){receiptTabs.forEach((tab,i)=>{tab.setAttribute('aria-selected',String(i===index));tab.tabIndex=i===index?0:-1;receiptPanels[i].hidden=i!==index;});if(focus)receiptTabs[index].focus();}
+receiptPanels.forEach((panel,i)=>{panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby',receiptTabs[i].id);panel.tabIndex=0;});
+document.querySelector('.receipt-tabs').hidden=false;
+receiptTabs.forEach((tab,i)=>{tab.addEventListener('click',()=>chooseReceipt(i));tab.addEventListener('keydown',event=>{const n=receiptTabs.length;let next;if(event.key==='ArrowRight')next=(i+1)%n;else if(event.key==='ArrowLeft')next=(i+n-1)%n;else if(event.key==='Home')next=0;else if(event.key==='End')next=n-1;else return;event.preventDefault();chooseReceipt(next,true);});});
+function receiptFromHash(){const i=receiptPanels.findIndex(panel=>'#'+panel.id===location.hash);if(i<0)return false;chooseReceipt(i);requestAnimationFrame(()=>receiptPanels[i].scrollIntoView({block:'start'}));return true;}
+if(!receiptFromHash())chooseReceipt(0);
+addEventListener('hashchange',receiptFromHash);
+// Receipt links preserve the artwork and open only the related native story.
+document.querySelectorAll('[data-receipt-story]').forEach(link=>link.addEventListener('click',event=>{event.preventDefault();setReading(false);openStory(Number(link.dataset.receiptChapter),link.dataset.receiptStory);}));
+document.querySelectorAll('[data-copy-receipt]').forEach(button=>{button.hidden=false;button.addEventListener('click',async()=>{
+ const card=button.closest('.receipt'),status=card.querySelector('.receipt-copy-status'),fallback=card.querySelector('.receipt-copy-fallback');
+ const quote=card.querySelector('blockquote').innerText;
+ const permanent=new URL(receiptIssuePath,'https://sundaypaper.me/');permanent.hash=card.id;
+ const text=receiptIssueLabel+'\n'+card.querySelector('h3').textContent+':\n“'+quote+'”\n'+card.querySelector('.receipt-status').textContent+'\n'+card.querySelector('.receipt-result').textContent+'\n'+card.querySelector('.receipt-response').textContent+'\n'+card.querySelector('.receipt-date').textContent+'\n'+permanent.href;
+ button.disabled=true;
+ try{if(!navigator.clipboard)throw new Error('Clipboard unavailable');await navigator.clipboard.writeText(text);fallback.hidden=true;status.textContent='Receipt copied. You choose where to share it.';}
+ catch{fallback.hidden=false;const field=fallback.querySelector('textarea');field.value=text;field.focus();field.select();status.textContent='Copy the receipt from the field below.';}
+ finally{button.disabled=false;}
+});});
+
+document.body.classList.add('section-index-ready');
+document.querySelector('[data-open-team]').addEventListener('click',event=>{event.preventDefault();desk.open=true;desk.scrollIntoView({block:'start'});invite.focus({preventScroll:true});});
+document.querySelector('[data-open-playoffs]').addEventListener('click',event=>{event.preventDefault();setReading(false);openStory(5);});
