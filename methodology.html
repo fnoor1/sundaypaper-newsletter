@@ -1,0 +1,58 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>First Take — Sources & model notes</title><link rel="stylesheet" href="style.css"></head><body><main class="method"><a href="index.html">← Back to the newspaper</a><h1>Sources & model notes.</h1><p>End-of-Week-4 issue. Completed results are included even though processed Sleeper standings lagged. The underlying model inputs were refreshed and matched the existing verified snapshot.</p><pre># First Take playoff model - through Week 4
+
+
+
+Latest finished results are included per the user. Sleeper&#x27;s roster standings had only processed Week 3 at retrieval. Week 4 records, PF and PA are reconstructed from matchup results, not copied from the stale standings.
+
+
+
+Data fetched: 2026-10-06T03:52:45.460793+00:00. League ID: 1389332559799791616. Six playoff spots, Weeks 1-14 regular season, playoffs start Week 15. Top two seeds receive byes in the standard six-team format. No divisions or league-median game in the retrieved settings.
+
+
+
+## Model
+
+200,000 seasons; random seed 202603. Observations are each team&#x27;s actual starting-lineup scores in Weeks 1-4. Prior team mean: league average 133.908; prior strength SD 15 points. Weekly residual SD 25 points (deliberately above the observed pooled SD 19.052). Normal-normal posterior mean weights four-week average by 59.016%, league average by 40.984%; posterior mean SD 9.603 points.
+
+Draw each team&#x27;s latent scoring mean once per simulated season. Draw independent weekly Normal scores around that mean with SD 25; floor at zero and round to 0.01. Use the actual retrieved Week 5-14 pairings. A weekly tie adds half a standings win. Rank by win equivalents, higher PF, higher PA. Count seeds 1-6 as playoffs, 1-2 as bye. No championship odds are implied.
+
+
+
+Sensitivity: four additional 100,000-season runs cross prior SD {10,20} with weekly SD {25,35}; displayed spread spans these and the main model. These are assumption ranges, not confidence intervals. The main Monte Carlo sampling error is at most about 0.22 percentage points for a 95% interval; model uncertainty is much larger. Rounded main playoff odds sum to 600%; the unrounded probabilities sum to exactly 600%.
+
+
+
+Limitations: only four games of evidence; no player-level forecasts, injuries, NFL bye adjustments, trade/waiver effects, opponent correlations, future scoring changes or commissioner overrides. Current strength is uncertain, not known. Current team names are used as labels; do not infer that they were identical in earlier weeks. League chat was not refreshed, so no chat quotes, current rivalries or personal allegations are included.
+
+
+
+## Verification
+
+All 14 weeks contain each roster exactly once and five two-team matchups. Weeks 1-3 scoring matches the processed platform PF exactly. Every simulated season has exactly 70 league wins, six qualifiers and two byes. Every team has bye odds at or below its playoff odds. Hand-check: Ivan 449.28 + 186.62 = 635.90 PF; 3-0 + the Week 4 win = 4-0. No scores after Week 4 enter the model.
+
+
+
+## Sources
+- https://api.sleeper.app/v1/league/1389332559799791616
+- https://api.sleeper.app/v1/league/1389332559799791616/users
+- https://api.sleeper.app/v1/league/1389332559799791616/rosters
+- https://api.sleeper.app/v1/league/1389332559799791616/matchups/4 (and Weeks 1-14)
+- https://api.sleeper.app/v1/players/nfl
+- https://support.sleeper.com/en/articles/2203518-how-do-playoff-teams-get-determined
+- https://support.sleeper.com/en/articles/4238872-can-i-set-tiebreakers
+
+| Team | Owner | Record | PF | Playoffs | Bye | Assumption spread |
+|---|---|---|---:|---:|---:|---|
+| ivan1265 | ivan1265 | 4-0 | 635.90 | 98.98% | 70.90% | 96.0-99.3% |
+| Glock Purdy | AmeedXO | 3-1 | 622.08 | 96.99% | 51.59% | 89.7-97.9% |
+| Pirate Flag | silverandblack619 | 3-1 | 590.22 | 93.25% | 34.13% | 86.3-94.3% |
+| Cold Rome | f4r | 3-1 | 580.92 | 90.85% | 26.82% | 85.0-91.9% |
+| Voltron Fc | V4Voltron | 2-2 | 536.96 | 66.58% | 6.77% | 63.6-66.8% |
+| AsianPersuasion | YDZRobb42 | 2-2 | 514.76 | 61.06% | 4.95% | 60.9-61.3% |
+| Glen Burnie Goons | kamar03 | 1-3 | 553.12 | 56.98% | 4.08% | 48.2-58.9% |
+| COKEHEADS | chokumsauce | 1-3 | 477.52 | 22.45% | 0.62% | 20.1-33.3% |
+| WITERALLY GWIDDYIN ON EM🫨 | rmahmood26 | 1-3 | 418.72 | 8.02% | 0.10% | 5.9-23.2% |
+| imalik | imalik | 0-4 | 426.12 | 4.83% | 0.03% | 3.9-13.3% |
+
+League history: COMP ONLY was the original main league. Farhan created First Take as a $20 buy-in money league. Historical title and season claims belong to COMP ONLY unless explicitly verified for First Take. All numerical records in this issue cover First Take Weeks 1–4 of 2026.
+</pre><p><a href="index.html#page-05">Return to the playoff picture</a></p></main></body></html>
