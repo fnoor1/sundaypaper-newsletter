@@ -1,10 +1,10 @@
 {
   "league": "First Take $2026",
   "season": 2026,
-  "week": 5,
-  "title": "Rome ends the run",
+  "week": 6,
+  "title": "Cry later. It\u2019s later.",
   "results_final": true,
-  "final_evidence": "Observed 2026 Week 5 on 2026-10-13T05:28:46.422018+00:00: all 15 ESPN scoreboard games completed, including Monday night BUF-LAR; Sleeper last_scored_leg=5 and NFL state week/leg=6. Authenticated Cold Rome-Ivan matchup shows both Yet to play (0), 173.24-111.40. All ten scores and starter sums checked.",
+  "final_evidence": "Observed 2026-10-20T04:27:44.432786+00:00: all 14 ESPN 2026 Week 6 scoreboard events completed/post/final; Sleeper NFL state week 7/display 6; all 10 Week 6 scores equal their starter sums. League last_scored_leg remains 5; records independently reconstructed through completed Week 6.",
   "pages": 8,
   "receipts_count": 4
 }
