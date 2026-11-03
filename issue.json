@@ -1,10 +1,10 @@
 {
   "league": "First Take $2026",
   "season": 2026,
-  "week": 7,
-  "title": "Sixth-best. First to talk.",
+  "week": 8,
+  "title": "Raif: trade victim.",
   "results_final": true,
-  "final_evidence": "Observed 2026-10-27T15:57:58.439983+00:00: all 14 ESPN 2026 Week 7 events completed/post/final; Sleeper display_week 7 and league last_scored_leg 7; all 70 completed team-week scores equal their starter sums. Records independently reconstructed through completed Week 7.",
+  "final_evidence": "Fresh Sleeper league endpoint observed 2026-11-03T15:40:15.685141+00:00 UTC reports First Take $2026 league 1389332559799791616, season 2026, last_scored_leg=8, current leg=9; Sleeper NFL state observed 2026-11-03T15:40:15.686115+00:00 UTC reports week=9/display_week=8. ESPN Week 8 scoreboard observed 2026-11-03T15:40:15.922343+00:00 UTC returned 14 events, each status state=post, name=STATUS_FINAL, completed=true. NFL.com official 2026 Week 8 schedule/results independently lists all 14 games as FINAL. All 10 Week 8 fantasy totals equal their starter-point sums; all 80 fantasy team-week starter sums across Weeks 1\u20138 reconcile.",
   "pages": 8,
   "receipts_count": 4
 }
