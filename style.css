@@ -38,3 +38,20 @@
 /* Short entry and optional long reads for this issue. */
 .quick-read p{margin:6px 0!important;font:14px/1.5 Arial,sans-serif}.quick-label{color:var(--orange);font:700 10px Arial,sans-serif;letter-spacing:1.3px}.quick-read a{display:block;color:#cfceca;font:12px/1.5 Arial,sans-serif;margin-top:8px;text-decoration:underline}.story-body p{max-width:60ch}.story-body h3{margin-top:30px}.story-details summary{border-bottom:1px solid #bcae9b}.sidebar h1{font-size:48px}.receipts-heading p{font-size:16px}
 @media(max-width:850px){.sidebar h1{font-size:38px;max-width:330px}.quick-read p{font-size:13px!important}.edition-entry{margin-top:12px}.layout{padding-top:16px;gap:14px}.edition-entry a{padding:8px 12px;min-height:47px}.edition-entry .edition-primary{min-height:50px}.phone-chapters{display:none}.sidebar .intro{margin-bottom:0}.quick-read a{font-size:11px}.story-preview{padding-top:20px}.story-deck{max-width:42ch}.story-body p{margin-bottom:18px}}
+
+/* Keep a meaningful part of the opening page in view on compact phones. */
+@media (max-width: 850px) {
+  .layout { padding-top: 12px; gap: 10px; }
+  .sidebar .intro:empty { display: none; }
+  .sidebar h1 { font-size: clamp(27px, 8.2vw, 38px); line-height: 1; margin: 9px 0 7px; }
+  .quick-read a { display: inline-block; margin: 2px 8px 2px 0; line-height: 1.4; }
+  .sidebar .edition-entry { grid-template-columns: repeat(4,minmax(0,1fr)); margin: 10px 0 0; }
+  .edition-entry a { align-items: center; justify-content: center; min-height: 44px; padding: 4px 5px; text-align: center; }
+  .edition-entry a:not(.edition-primary) { border: 0; border-right: 1px solid var(--line); }
+  .edition-entry a:last-child { border-right: 0; }
+  .edition-entry a:not(.edition-primary) small { display: none; }
+  .edition-entry .edition-primary { align-items: flex-start; min-height: 48px; padding: 8px 12px; }
+  .edition-entry .edition-primary b { top: 10px; }
+  .phone-chapters { display: block; margin: 0 0 24px; }
+  #page-01 { margin-bottom: 14px; }
+}

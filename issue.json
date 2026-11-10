@@ -1,10 +1,10 @@
 {
   "league": "First Take $2026",
   "season": 2026,
-  "week": 8,
-  "title": "Raif: trade victim.",
+  "week": 9,
+  "title": "The 191-point invoice.",
   "results_final": true,
-  "final_evidence": "Fresh Sleeper league endpoint observed 2026-11-03T15:40:15.685141+00:00 UTC reports First Take $2026 league 1389332559799791616, season 2026, last_scored_leg=8, current leg=9; Sleeper NFL state observed 2026-11-03T15:40:15.686115+00:00 UTC reports week=9/display_week=8. ESPN Week 8 scoreboard observed 2026-11-03T15:40:15.922343+00:00 UTC returned 14 events, each status state=post, name=STATUS_FINAL, completed=true. NFL.com official 2026 Week 8 schedule/results independently lists all 14 games as FINAL. All 10 Week 8 fantasy totals equal their starter-point sums; all 80 fantasy team-week starter sums across Weeks 1\u20138 reconcile.",
+  "final_evidence": "Sleeper First Take $2026 league 1389332559799791616, observed 2026-11-10T15:28:37.882702+00:00, reported last scored leg 9 and current leg 10. The official NFL Week 9 schedule lists 15 final games, including the Monday Buffalo–Minnesota game. ESPN date-window scoreboards independently mark all 15 events final and complete. All 90 submitted starter sums across Weeks 1–9 reconcile to Sleeper matchup totals.",
   "pages": 8,
-  "receipts_count": 4
+  "receipts_count": 3
 }
