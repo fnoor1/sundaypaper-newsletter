@@ -29,7 +29,6 @@ function syncPhoneLayout(){
   for(const id of phoneOpened)if(!document.body.classList.contains('reading'))document.getElementById(id).open=false;
   phoneOpened.clear();phoneMenu.open=false;
  }
- document.querySelectorAll('.print-page').forEach(panel=>panel.open=!phone.matches);
 }
 function closePhoneContents(){if(phone.matches)phoneMenu.open=false;}
 function openStory(num,anchor){
@@ -41,9 +40,8 @@ function openStory(num,anchor){
 function openPrintedPage(num){
  closePhoneContents();
  const page=document.getElementById('page-'+String(num).padStart(2,'0'));
- const panel=page.querySelector('.print-page');
- if(panel){panel.open=true;panel.querySelector('summary').focus({preventScroll:true});panel.scrollIntoView({block:'start'});}
- else page.scrollIntoView({block:'start'});
+ const figure=page.querySelector('.artwork');
+ figure.tabIndex=-1;figure.focus({preventScroll:true});figure.scrollIntoView({block:'start'});
 }
 document.querySelectorAll('.story-details').forEach(panel=>panel.addEventListener('toggle',()=>{panel.querySelector('.story-action').textContent=panel.open?'Story open':'Full story';panel.querySelector('.story-chevron').textContent=panel.open?'−':'＋';}));
 document.querySelectorAll('[data-close-story]').forEach(button=>button.addEventListener('click',()=>{const panel=document.getElementById('story-'+button.dataset.closeStory);panel.open=false;panel.closest('article').scrollIntoView({block:'start'});panel.querySelector('summary').focus({preventScroll:true});}));
@@ -84,7 +82,15 @@ addEventListener('load',syncCurrentChapter);
 document.querySelector('.phone-chapters').addEventListener('toggle',()=>requestAnimationFrame(syncCurrentChapter));
 document.querySelectorAll('.phone-chapters .chapter-links a').forEach(link=>link.addEventListener('click',()=>link.closest('details').open=false));
 requestAnimationFrame(syncCurrentChapter);
-document.querySelectorAll('img').forEach(img=>img.addEventListener('error',()=>{const msg=document.createElement('p');msg.className='error';msg.textContent='This page image could not load. The story is available below.';img.replaceWith(msg);}));
+function imageFailed(img){
+ const page=img.closest('.page');if(page)page.classList.add('image-failed');
+ const msg=document.createElement('p');msg.className='error';msg.textContent='This page image could not load. The story is available below.';
+ img.replaceWith(msg);
+}
+document.querySelectorAll('img').forEach(img=>{
+ img.addEventListener('error',()=>imageFailed(img),{once:true});
+ if(img.complete&&img.naturalWidth===0)imageFailed(img);
+});
 const form=document.getElementById('pick-form'),status=document.getElementById('pick-status'),copy=document.getElementById('copy-pick'),reason=document.getElementById('reason'),fallback=document.getElementById('copy-fallback');
 // The edition config owns all prediction wording.
 const labels=EDITION.pickLabels;

@@ -132,15 +132,7 @@
 }
 
 /* On phones, the printed cover opens a continuous newspaper rather than an entry screen. */
-.phone-date, .print-page > summary, .print-download { display: none; }
-@media (min-width: 851px) {
-  .page { display: flex; flex-direction: column; }
-  .page-heading { order: 0; }
-  .page > .artwork, .print-page { order: 1; }
-  .story-preview { order: 2; }
-  .next-page { order: 3; align-self: flex-start; }
-  .reading .print-page { display: none; }
-}
+.phone-date { display: none; }
 @media (max-width: 850px) {
   body { background: var(--paper); color: var(--black); color-scheme: light; }
   .topbar { background: var(--paper); border-color: #bcae9b; }
@@ -175,8 +167,13 @@
   .phone-tools .team-choice span { color: #655747; }
   .page { margin: 0; padding-block-end: 1.75rem; }
   .page-heading { display: none; }
-  .story-preview { margin: 0; padding: 1.75rem .5rem 1rem; border: 0; border-block-start: 1px solid #bcae9b; background: transparent; }
-  #page-01 .story-preview { border-block-start: 0; }
+  .story-preview { margin: 0; padding: 1.25rem .5rem 1rem; border: 0; background: transparent; }
+  .story-preview > :is(.article-kicker,h2,.story-deck) { position: absolute; inline-size: 1px; block-size: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .page.image-failed .story-preview > :is(.article-kicker,h2,.story-deck) { position: static; inline-size: auto; block-size: auto; overflow: visible; clip-path: none; white-space: normal; }
+  .page.image-failed .article-kicker { margin: 0; }
+  .page.image-failed .story-preview > h2 { margin: .75rem 0 1rem; }
+  .page.image-failed .story-deck { margin: 0 0 1.25rem; }
+  .page.image-failed .error { color: var(--black); border-color: #8b3b16; }
   .article-kicker { color: #8b3b16; font: 700 .625rem/1.5 Arial,sans-serif; letter-spacing: 1.3px; }
   .story-preview > h2 { font: 700 clamp(1.9rem,7vw,2.5rem)/1.12 Georgia,'Times New Roman',serif; margin: .75rem 0 1rem; text-wrap: balance; }
   .story-deck { max-inline-size: none; margin: 0 0 1.25rem; font: italic 1.1rem/1.5 Georgia,'Times New Roman',serif; color: #51483d; }
@@ -184,12 +181,8 @@
   .story-body { padding: 0; font: 1.1rem/1.65 Georgia,'Times New Roman',serif; }
   .story-body p { max-inline-size: 60ch; margin-block: 0 1.25rem; }
   .story-body h3 { font: 700 1.5rem/1.2 Georgia,'Times New Roman',serif; margin: 1.75rem 0 .75rem; text-transform: none; text-wrap: balance; }
+  .story-body > :first-child { margin-block-start: 0; }
   .story-body .callout { border-color: #bcae9b; }
-  .print-page { border-block: 1px solid #bcae9b; margin-inline: .5rem; scroll-margin-top: 1rem; }
-  .print-page > summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-block-size: 2.75rem; padding: .75rem 0; color: #655747; font: .8125rem/1.4 Arial,sans-serif; }
-  .print-page[open] > summary { border-block-end: 1px solid #bcae9b; }
-  .print-page .artwork { margin-block: .75rem 0; }
-  .print-download { display: inline-flex; align-items: center; min-block-size: 2.75rem; font: .8125rem/1.4 Arial,sans-serif; color: #8b3b16; text-decoration: underline; }
   .table-scroll { font-family: Arial,sans-serif; }
   .receipts-column { margin-block: 0 1.75rem; border-color: #bcae9b; }
   .receipts-heading { padding: 1.5rem .5rem 1rem; }
