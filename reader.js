@@ -4,22 +4,86 @@ const STORE='sundaypaper:'+EDITION.edition+':';
 const readStore=(key)=>{try{return localStorage.getItem(STORE+key)}catch{return null}};
 const writeStore=(key,value)=>{try{localStorage.setItem(STORE+key,value);return true}catch{return false}};
 const safe=(value)=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const autoOpened=new Set();
-function setReading(reading){document.body.classList.toggle('reading',reading);mode.setAttribute('aria-pressed',String(reading));mode.textContent=reading?'Design view':'Articles';if(reading){document.querySelectorAll('.story-details').forEach(panel=>{if(!panel.open)autoOpened.add(panel.id);panel.open=true;});}else{for(const id of autoOpened)document.getElementById(id).open=false;autoOpened.clear();}}
-function openStory(num,anchor){const panel=document.getElementById('story-'+String(num).padStart(2,'0'));panel.open=true;const target=(anchor && document.getElementById(anchor)) || panel;target.scrollIntoView({block:'start'});}
+const phone=matchMedia('(max-width:850px)');
+const phoneMenu=document.querySelector('.phone-chapters'),phoneTools=document.querySelector('.phone-tools');
+const featureNav=document.querySelector('.edition-entry');
+const featureHome=document.createComment('Edition links'),deskHome=document.createComment('Team desk');
+featureNav.before(featureHome);desk.before(deskHome);
+const autoOpened=new Set(),phoneOpened=new Set();
+document.querySelectorAll('.story-details').forEach(panel=>panel.open=false);
+function setReading(reading){
+ reading=reading&&!phone.matches;
+ document.body.classList.toggle('reading',reading);
+ mode.setAttribute('aria-pressed',String(reading));mode.textContent=reading?'Design view':'Articles';
+ if(reading){document.querySelectorAll('.story-details').forEach(panel=>{if(!panel.open)autoOpened.add(panel.id);panel.open=true;});}
+ else{for(const id of autoOpened)document.getElementById(id).open=false;autoOpened.clear();}
+ if(phone.matches)document.querySelectorAll('.story-details').forEach(panel=>panel.open=true);
+}
+function syncPhoneLayout(){
+ document.body.classList.toggle('immersive',phone.matches);
+ if(phone.matches){
+  phoneTools.append(featureNav,desk);
+  document.querySelectorAll('.story-details').forEach(panel=>{if(!panel.open||autoOpened.has(panel.id))phoneOpened.add(panel.id);panel.open=true;});
+ }else{
+  featureHome.after(featureNav);deskHome.after(desk);
+  for(const id of phoneOpened)if(!document.body.classList.contains('reading'))document.getElementById(id).open=false;
+  phoneOpened.clear();phoneMenu.open=false;
+ }
+ document.querySelectorAll('.print-page').forEach(panel=>panel.open=!phone.matches);
+}
+function closePhoneContents(){if(phone.matches)phoneMenu.open=false;}
+function openStory(num,anchor){
+ closePhoneContents();
+ const panel=document.getElementById('story-'+String(num).padStart(2,'0'));panel.open=true;
+ const target=(anchor&&document.getElementById(anchor))||panel;
+ target.tabIndex=-1;target.focus({preventScroll:true});target.scrollIntoView({block:'start'});
+}
+function openPrintedPage(num){
+ closePhoneContents();
+ const page=document.getElementById('page-'+String(num).padStart(2,'0'));
+ const panel=page.querySelector('.print-page');
+ if(panel){panel.open=true;panel.querySelector('summary').focus({preventScroll:true});panel.scrollIntoView({block:'start'});}
+ else page.scrollIntoView({block:'start'});
+}
 document.querySelectorAll('.story-details').forEach(panel=>panel.addEventListener('toggle',()=>{panel.querySelector('.story-action').textContent=panel.open?'Story open':'Full story';panel.querySelector('.story-chevron').textContent=panel.open?'−':'＋';}));
 document.querySelectorAll('[data-close-story]').forEach(button=>button.addEventListener('click',()=>{const panel=document.getElementById('story-'+button.dataset.closeStory);panel.open=false;panel.closest('article').scrollIntoView({block:'start'});panel.querySelector('summary').focus({preventScroll:true});}));
-setReading(false); // Every visit starts with the actual designed newspaper.
+syncPhoneLayout();
+setReading(false); // Desktop starts with the designed issue; phones read the open paper.
 mode.addEventListener('click',()=>{setReading(!document.body.classList.contains('reading'));const current=document.querySelector('nav a[aria-current="true"]');if(current)document.querySelector(current.getAttribute('href')).scrollIntoView({block:'start'});});
-function renderTicket(id){const t=EDITION.teams.find(t=>t.id===Number(id));if(!t)return;ticket.hidden=false;choices.hidden=true;invite.innerHTML=`Your Week ${EDITION.week} receipt <span aria-hidden="true">↗</span>`;ticket.innerHTML=`<span class="ticket-owner">${safe(t.manager)} · Week ${EDITION.week} receipt</span><h2>${safe(t.name)}</h2><div class="ticket-record">${safe(t.record)} · ${safe(t.pf)} PF</div><div class="ticket-score">${safe(t.score)} <span>/ ${safe(t.result)}</span></div><p>Opponent: ${safe(t.opponent)}, ${safe(t.oppScore)}.</p><p class="ticket-metrics">ALL-PLAY ${safe(t.allplay)}<br>PLAYOFF SCENARIO ${typeof t.playoff==="number"?t.playoff+"%":safe(t.playoff)}</p><p><b>Next:</b> ${safe(t.nextOpponent)} · Week ${EDITION.nextWeek}</p><p>${safe(t.intro)}</p><a href="#page-${String(t.chapter).padStart(2,'0')}" data-story="${safe(t.game)}">Read your game story →</a><a href="#page-${String(t.chapter).padStart(2,'0')}" data-design="true">See the designed recap →</a><button type="button" id="change-team">Choose another team</button><p class="ticket-note">All-play is a hypothetical score comparison. <a href="methodology.html">Read the model assumptions</a>.</p>`;writeStore('team',String(t.id));ticket.querySelector('[data-story]').addEventListener('click',event=>{event.preventDefault();setReading(false);openStory(t.chapter,t.game);});ticket.querySelector('[data-design]').addEventListener('click',()=>setReading(false));document.getElementById('change-team').addEventListener('click',()=>{ticket.hidden=true;choices.hidden=false;invite.innerHTML="Pull your team's ticket <span aria-hidden='true'>↗</span>";});}
+function renderTicket(id){const t=EDITION.teams.find(t=>t.id===Number(id));if(!t)return;ticket.hidden=false;choices.hidden=true;invite.innerHTML=`Your Week ${EDITION.week} receipt <span aria-hidden="true">↗</span>`;ticket.innerHTML=`<span class="ticket-owner">${safe(t.manager)} · Week ${EDITION.week} receipt</span><h2>${safe(t.name)}</h2><div class="ticket-record">${safe(t.record)} · ${safe(t.pf)} PF</div><div class="ticket-score">${safe(t.score)} <span>/ ${safe(t.result)}</span></div><p>Opponent: ${safe(t.opponent)}, ${safe(t.oppScore)}.</p><p class="ticket-metrics">ALL-PLAY ${safe(t.allplay)}<br>PLAYOFF SCENARIO ${typeof t.playoff==="number"?t.playoff+"%":safe(t.playoff)}</p><p><b>Next:</b> ${safe(t.nextOpponent)} · Week ${EDITION.nextWeek}</p><p>${safe(t.intro)}</p><a href="#page-${String(t.chapter).padStart(2,'0')}" data-story="${safe(t.game)}">Read your game story →</a><a href="#page-${String(t.chapter).padStart(2,'0')}" data-design="true">See the designed recap →</a><button type="button" id="change-team">Choose another team</button><p class="ticket-note">All-play is a hypothetical score comparison. <a href="methodology.html">Read the model assumptions</a>.</p>`;writeStore('team',String(t.id));ticket.querySelector('[data-story]').addEventListener('click',event=>{event.preventDefault();setReading(false);openStory(t.chapter,t.game);});ticket.querySelector('[data-design]').addEventListener('click',event=>{setReading(false);if(phone.matches){event.preventDefault();openPrintedPage(t.chapter);}});document.getElementById('change-team').addEventListener('click',()=>{ticket.hidden=true;choices.hidden=false;invite.innerHTML="Pull your team's ticket <span aria-hidden='true'>↗</span>";});}
 document.querySelectorAll('[data-team]').forEach(button=>button.addEventListener('click',()=>renderTicket(button.dataset.team)));
 const savedTeam=EDITION.teams.find(t=>t.id===Number(readStore('team')));if(savedTeam){renderTicket(savedTeam.id);desk.open=false;invite.innerHTML='Back for '+safe(savedTeam.name)+'? <span aria-hidden="true">↗</span>';}
 const resume=document.getElementById('resume'),savedChapter=Number(readStore('chapter'));if(savedChapter>1&&savedChapter<=EDITION.chapters.length){resume.hidden=false;resume.href='#page-'+String(savedChapter).padStart(2,'0');resume.textContent='Continue at '+EDITION.chapters[savedChapter-1]+' →';const desktopResume=document.getElementById('desktop-resume');desktopResume.hidden=false;desktopResume.href=resume.href;desktopResume.textContent=resume.textContent;}
-const links=[...document.querySelectorAll('nav a[data-page]')];
-const observer=new IntersectionObserver(entries=>{const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];if(!visible)return;const num=Number(visible.target.id.slice(-2));for(const link of links){if(link.getAttribute('href')==='#'+visible.target.id)link.setAttribute('aria-current','true');else link.removeAttribute('aria-current');}document.getElementById('chapter-position').textContent=String(num).padStart(2,'0')+' / 08 · '+EDITION.chapters[num-1];writeStore('chapter',String(num));},{rootMargin:'-100px 0px -25% 0px',threshold:[0,.05,.15,.3]});document.querySelectorAll('.page').forEach(page=>observer.observe(page));
-document.querySelectorAll('.phone-chapters nav a').forEach(link=>link.addEventListener('click',()=>link.closest('details').open=false));
-let ticking=false;function updateProgress(){const progress=document.getElementById('reading-progress');const span=document.documentElement.scrollHeight-innerHeight;progress.value=span>0?Math.max(0,Math.min(100,scrollY/span*100)):0;ticking=false;}
-addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(updateProgress);ticking=true}},{passive:true});addEventListener('resize',updateProgress);updateProgress();
+const links=[...document.querySelectorAll('.chapter-links a[data-page]')];
+const chapterPages=[...document.querySelectorAll('.page')];
+const nativeChapters=CSS.supports('scroll-target-group: auto')&&CSS.supports('selector(:target-current)');
+let currentChapter;
+function setCurrentChapter(page,fallback=false){
+ const num=Number(page.id.slice(-2));
+ for(const link of links){const active=link.hash==='#'+page.id;link.classList.toggle('chapter-fallback',fallback&&active);if(active)link.setAttribute('aria-current','true');else link.removeAttribute('aria-current');}
+ if(currentChapter===num)return;
+ currentChapter=num;
+ document.getElementById('chapter-position').textContent=String(num).padStart(2,'0')+' / 08 · '+EDITION.chapters[num-1];
+ writeStore('chapter',String(num));
+}
+function syncCurrentChapter(){
+ // Hidden desktop navigation and closed phone details have no rendered native markers.
+ const marker=nativeChapters&&links.find(link=>link.getClientRects().length&&link.matches(':target-current'));
+ if(marker){setCurrentChapter(document.getElementById(marker.hash.slice(1)));return;}
+ const readingLine=parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop)||100;
+ let page=chapterPages[0];
+ for(const candidate of chapterPages){const margin=parseFloat(getComputedStyle(candidate).scrollMarginTop)||0;if(candidate.getBoundingClientRect().top>readingLine+margin+1)break;page=candidate;}
+ setCurrentChapter(page,true);
+}
+// The observer covers unsupported browsers and the closed phone chapter menu.
+const observer=new IntersectionObserver(syncCurrentChapter,{rootMargin:'-100px 0px -65% 0px',threshold:[0,.05,.15,.3,.5,.75,1]});
+chapterPages.forEach(page=>observer.observe(page));
+document.addEventListener('scrollend',syncCurrentChapter);
+addEventListener('resize',syncCurrentChapter);
+addEventListener('load',syncCurrentChapter);
+document.querySelector('.phone-chapters').addEventListener('toggle',()=>requestAnimationFrame(syncCurrentChapter));
+document.querySelectorAll('.phone-chapters .chapter-links a').forEach(link=>link.addEventListener('click',()=>link.closest('details').open=false));
+requestAnimationFrame(syncCurrentChapter);
 document.querySelectorAll('img').forEach(img=>img.addEventListener('error',()=>{const msg=document.createElement('p');msg.className='error';msg.textContent='This page image could not load. The story is available below.';img.replaceWith(msg);}));
 const form=document.getElementById('pick-form'),status=document.getElementById('pick-status'),copy=document.getElementById('copy-pick'),reason=document.getElementById('reason'),fallback=document.getElementById('copy-fallback');
 // The edition config owns all prediction wording.
@@ -31,7 +95,7 @@ form.addEventListener('change',()=>{copy.disabled=!currentPick();fallback.hidden
 form.addEventListener('submit',event=>{event.preventDefault();const pick=currentPick();if(!pick){status.textContent=`Choose a Week ${EDITION.nextWeek} call first.`;return;}const saved=writeStore('pick',JSON.stringify(pick));status.textContent=saved?'Your pick is saved on this browser. Change it any time.':'Your pick is kept for this visit.';copy.disabled=false;});
 copy.addEventListener('click',async()=>{const pick=currentPick();if(!pick)return;const text=takeText(pick);try{await navigator.clipboard.writeText(text);status.textContent='Your take is copied. Bring the receipt to the chat.';}catch{fallback.hidden=false;fallback.value=text;fallback.focus();fallback.select();status.textContent='Select and copy your take below.';}});
 
-const phone=matchMedia('(max-width:850px)');phone.addEventListener('change',event=>{if(event.matches)setReading(false);});
+phone.addEventListener('change',()=>{syncPhoneLayout();setReading(false);requestAnimationFrame(syncCurrentChapter);});
 const receiptIssuePath=EDITION.issuePath;
 const receiptIssueLabel=`Sunday Paper · First Take $2026 · Week ${EDITION.week}`;
 
@@ -58,5 +122,10 @@ document.querySelectorAll('[data-copy-receipt]').forEach(button=>{button.hidden=
 });});
 
 document.body.classList.add('section-index-ready');
-document.querySelector('[data-open-team]').addEventListener('click',event=>{event.preventDefault();desk.open=true;desk.scrollIntoView({block:'start'});invite.focus({preventScroll:true});});
+document.querySelector('[data-open-team]').addEventListener('click',event=>{event.preventDefault();if(phone.matches)phoneMenu.open=true;desk.open=true;invite.scrollIntoView({block:'nearest'});invite.focus({preventScroll:true});});
 document.querySelector('[data-open-playoffs]').addEventListener('click',event=>{event.preventDefault();setReading(false);openStory(7);});
+
+phoneMenu.addEventListener('click',event=>{
+ const link=event.target.closest('a[href^="#"]');
+ if(link&&!link.hasAttribute('data-open-team'))closePhoneContents();
+});
