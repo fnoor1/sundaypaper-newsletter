@@ -33,12 +33,14 @@ function syncPhoneLayout(){
 function closePhoneContents(){if(phone.matches)phoneMenu.open=false;}
 function openStory(num,anchor){
  closePhoneContents();
+ beginReading(document.getElementById('page-'+String(num).padStart(2,'0')));
  const panel=document.getElementById('story-'+String(num).padStart(2,'0'));panel.open=true;
  const target=(anchor&&document.getElementById(anchor))||panel;
  target.tabIndex=-1;target.focus({preventScroll:true});target.scrollIntoView({block:'start'});
 }
 function openPrintedPage(num){
  closePhoneContents();
+ beginReading(document.getElementById('page-'+String(num).padStart(2,'0')));
  const page=document.getElementById('page-'+String(num).padStart(2,'0'));
  const figure=page.querySelector('.artwork');
  figure.tabIndex=-1;figure.focus({preventScroll:true});figure.scrollIntoView({block:'start'});
@@ -51,7 +53,45 @@ mode.addEventListener('click',()=>{setReading(!document.body.classList.contains(
 function renderTicket(id){const t=EDITION.teams.find(t=>t.id===Number(id));if(!t)return;ticket.hidden=false;choices.hidden=true;invite.innerHTML=`Your Week ${EDITION.week} receipt <span aria-hidden="true">↗</span>`;ticket.innerHTML=`<span class="ticket-owner">${safe(t.manager)} · Week ${EDITION.week} receipt</span><h2>${safe(t.name)}</h2><div class="ticket-record">${safe(t.record)} · ${safe(t.pf)} PF</div><div class="ticket-score">${safe(t.score)} <span>/ ${safe(t.result)}</span></div><p>Opponent: ${safe(t.opponent)}, ${safe(t.oppScore)}.</p><p class="ticket-metrics">ALL-PLAY ${safe(t.allplay)}<br>PLAYOFF SCENARIO ${typeof t.playoff==="number"?t.playoff+"%":safe(t.playoff)}</p><p><b>Next:</b> ${safe(t.nextOpponent)} · Week ${EDITION.nextWeek}</p><p>${safe(t.intro)}</p><a href="#page-${String(t.chapter).padStart(2,'0')}" data-story="${safe(t.game)}">Read your game story →</a><a href="#page-${String(t.chapter).padStart(2,'0')}" data-design="true">See the designed recap →</a><button type="button" id="change-team">Choose another team</button><p class="ticket-note">All-play is a hypothetical score comparison. <a href="methodology.html">Read the model assumptions</a>.</p>`;writeStore('team',String(t.id));ticket.querySelector('[data-story]').addEventListener('click',event=>{event.preventDefault();setReading(false);openStory(t.chapter,t.game);});ticket.querySelector('[data-design]').addEventListener('click',event=>{setReading(false);if(phone.matches){event.preventDefault();openPrintedPage(t.chapter);}});document.getElementById('change-team').addEventListener('click',()=>{ticket.hidden=true;choices.hidden=false;invite.innerHTML="Pull your team's ticket <span aria-hidden='true'>↗</span>";});}
 document.querySelectorAll('[data-team]').forEach(button=>button.addEventListener('click',()=>renderTicket(button.dataset.team)));
 const savedTeam=EDITION.teams.find(t=>t.id===Number(readStore('team')));if(savedTeam){renderTicket(savedTeam.id);desk.open=false;invite.innerHTML='Back for '+safe(savedTeam.name)+'? <span aria-hidden="true">↗</span>';}
-const resume=document.getElementById('resume'),savedChapter=Number(readStore('chapter'));if(savedChapter>1&&savedChapter<=EDITION.chapters.length){resume.hidden=false;resume.href='#page-'+String(savedChapter).padStart(2,'0');resume.textContent='Continue at '+EDITION.chapters[savedChapter-1]+' →';const desktopResume=document.getElementById('desktop-resume');desktopResume.hidden=false;desktopResume.href=resume.href;desktopResume.textContent=resume.textContent;}
+const resume=document.getElementById('resume'),desktopResume=document.getElementById('desktop-resume');
+const savedChapter=Number(readStore('chapter'));
+const chapterForTarget=target=>target?.closest('.page')||target?.querySelector?.('.page');
+const initialTarget=location.hash&&document.getElementById(decodeURIComponent(location.hash.slice(1)));
+let readingIntent=Boolean(initialTarget),scrollIntent=false;
+function hideResume(){resume.hidden=true;desktopResume.hidden=true;}
+if(!initialTarget&&savedChapter>1&&savedChapter<=EDITION.chapters.length){
+ for(const link of [resume,desktopResume]){link.hidden=false;link.href='#page-'+String(savedChapter).padStart(2,'0');link.textContent='Continue at '+EDITION.chapters[savedChapter-1]+' →';}
+}
+function beginReading(target){
+ readingIntent=true;hideResume();
+ const page=chapterForTarget(target);if(page)writeStore('chapter',String(Number(page.id.slice(-2))));
+}
+function ignoresReadingIntent(target){return target instanceof Element&&Boolean(target.closest('dialog,input,textarea,select,[contenteditable="true"]'));}
+// A passive landing must not replace yesterday's checkpoint with the cover.
+// Only navigation or an actual reading gesture authorizes subsequent writes.
+document.addEventListener('click',event=>{
+ const link=event.target.closest('a[href^="#"]');
+ if(!link||ignoresReadingIntent(link)||link.hasAttribute('data-open-team'))return;
+ const target=document.getElementById(link.hash.slice(1));if(target)beginReading(target);
+});
+document.addEventListener('wheel',event=>{
+ if(!ignoresReadingIntent(event.target)&&!event.target.closest('.phone-chapters,.sidebar')&&event.deltaY!==0)scrollIntent=true;
+},{passive:true});
+document.addEventListener('touchmove',event=>{
+ if(!ignoresReadingIntent(event.target)&&!event.target.closest('.phone-chapters,.sidebar'))scrollIntent=true;
+},{passive:true});
+document.addEventListener('keydown',event=>{
+ if(ignoresReadingIntent(event.target)||event.target.closest('button,summary,a'))return;
+ if(['ArrowDown','ArrowUp','PageDown','PageUp','Home','End',' '].includes(event.key))scrollIntent=true;
+});
+// Pointer dragging the root scrollbar is also an intentional reading scroll.
+document.addEventListener('pointerdown',event=>{
+ if(event.target===document.documentElement&&event.clientX>=document.documentElement.clientWidth)scrollIntent=true;
+});
+addEventListener('scroll',()=>{
+ if(scrollIntent){beginReading();scrollIntent=false;}
+ if(readingIntent)syncCurrentChapter();
+},{passive:true});
 const links=[...document.querySelectorAll('.chapter-links a[data-page]')];
 const chapterPages=[...document.querySelectorAll('.page')];
 const nativeChapters=CSS.supports('scroll-target-group: auto')&&CSS.supports('selector(:target-current)');
@@ -59,12 +99,15 @@ let currentChapter;
 function setCurrentChapter(page,fallback=false){
  const num=Number(page.id.slice(-2));
  for(const link of links){const active=link.hash==='#'+page.id;link.classList.toggle('chapter-fallback',fallback&&active);if(active)link.setAttribute('aria-current','true');else link.removeAttribute('aria-current');}
+ if(readingIntent)writeStore('chapter',String(num));
  if(currentChapter===num)return;
  currentChapter=num;
  document.getElementById('chapter-position').textContent=String(num).padStart(2,'0')+' / 08 · '+EDITION.chapters[num-1];
- writeStore('chapter',String(num));
 }
 function syncCurrentChapter(){
+ // Contents expansion and modal inspection are UI, not a new reading position.
+ // In particular, WebKit scroll anchoring can move the page while the menu opens.
+ if((phone.matches&&phoneMenu.open)||document.getElementById('page-inspector')?.open)return;
  // Hidden desktop navigation and closed phone details have no rendered native markers.
  const marker=nativeChapters&&links.find(link=>link.getClientRects().length&&link.matches(':target-current'));
  if(marker){setCurrentChapter(document.getElementById(marker.hash.slice(1)));return;}
@@ -87,10 +130,49 @@ function imageFailed(img){
  const msg=document.createElement('p');msg.className='error';msg.textContent='This page image could not load. The story is available below.';
  img.replaceWith(msg);
 }
-document.querySelectorAll('img').forEach(img=>{
+document.querySelectorAll('.artwork img').forEach(img=>{
  img.addEventListener('error',()=>imageFailed(img),{once:true});
  if(img.complete&&img.naturalWidth===0)imageFailed(img);
 });
+const inspector=document.getElementById('page-inspector');
+if(typeof inspector?.showModal==='function'){
+ const canvas=inspector.querySelector('.inspector-canvas'),size=document.getElementById('inspector-size');
+ const help=document.getElementById('inspector-help'),status=document.getElementById('inspector-status');
+ const image=document.createElement('img');image.decoding='async';canvas.append(image);
+ function setFullSize(full){
+  canvas.classList.toggle('fit-page',!full);size.setAttribute('aria-pressed',String(full));size.textContent=full?'Fit page':'Full size';
+  help.textContent=full?'Full size. Scroll to inspect the page in any direction.':'Fit to view. Choose Full size to read the original labels.';
+  canvas.scrollTo(0,0);
+ }
+ image.addEventListener('load',()=>{status.textContent='';image.hidden=false;});
+ image.addEventListener('error',()=>{image.hidden=true;status.textContent='The full-resolution page could not load. Close to keep reading, or try the original PNG link.';});
+ function inspectPage(event){
+  if(event instanceof MouseEvent&&(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey))return;
+  const trigger=event.currentTarget,num=Number(trigger.dataset.inspectPage);
+  const original=document.querySelector('#page-'+String(num).padStart(2,'0')+' .artwork > a');
+  event.preventDefault();
+  document.getElementById('inspector-title').textContent='Page '+String(num).padStart(2,'0')+' · '+EDITION.chapters[num-1];
+  document.getElementById('inspector-original').href=original.href;
+  image.hidden=true;status.textContent='Loading the original page…';image.alt='Full-resolution page '+num+' · '+EDITION.chapters[num-1];
+  setFullSize(true);image.src=original.href;
+  // Safari pointer activation need not focus a button. Establish the visible
+  // invoker first so the native dialog can return focus to that exact control.
+  trigger.focus({preventScroll:true});inspector.showModal();canvas.scrollTo(0,0);
+ }
+ document.querySelectorAll('[data-inspect-page]').forEach(trigger=>{
+  trigger.addEventListener('click',inspectPage);trigger.setAttribute('aria-haspopup','dialog');
+  if(trigger.tagName==='BUTTON')trigger.hidden=false;
+ });
+ document.querySelectorAll('.inspect-fallback').forEach(link=>link.hidden=true);
+ size.addEventListener('click',()=>setFullSize(canvas.classList.contains('fit-page')));
+ if(!('closedBy' in HTMLDialogElement.prototype)){
+  const outside=event=>{const r=inspector.getBoundingClientRect();return event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom;};
+  let pressedOutside=false;
+  inspector.addEventListener('pointerdown',event=>{pressedOutside=outside(event);});
+  inspector.addEventListener('pointerup',event=>{if(pressedOutside&&outside(event))inspector.close();pressedOutside=false;});
+ }
+ inspector.addEventListener('close',()=>{inspector.returnValue='';});
+}
 const form=document.getElementById('pick-form'),status=document.getElementById('pick-status'),copy=document.getElementById('copy-pick'),reason=document.getElementById('reason'),fallback=document.getElementById('copy-fallback');
 // The edition config owns all prediction wording.
 const labels=EDITION.pickLabels;
