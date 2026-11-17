@@ -112,17 +112,6 @@
   .table-scroll .standings-table thead th { color: #655747; font-size: .6875rem; font-weight: 700; }
   .standings-table tr.cutoff { border-block-end: 2px dashed #655747; }
 }
-@container comparison (width < 33rem) {
-  .scenario-frame .table-scroll { overflow: visible; max-block-size: none; }
-  .table-scroll .scenario-table { min-inline-size: 0; inline-size: 100%; font-size: .8125rem; }
-  .table-scroll .scenario-table :is(th,td) { position: static; padding: .625rem .125rem; font-size: .8125rem; line-height: 1.5; white-space: nowrap; background: transparent; }
-  .table-scroll .scenario-table thead { background: transparent; }
-  .table-scroll .scenario-table thead th { white-space: normal; color: #655747; font-size: .6875rem; line-height: 1.35; vertical-align: bottom; border-block-start: 1px solid #8b3b16; }
-  .table-scroll .scenario-table th:nth-child(1) { inline-size: 21%; text-align: left; }
-  .table-scroll .scenario-table th:nth-child(2) { inline-size: 22%; }
-  .table-scroll .scenario-table th:nth-child(3) { inline-size: 19%; }
-  .table-scroll .scenario-table th:nth-child(4) { inline-size: 38%; }
-}
 .chapter-links a:is(:target-current, .chapter-fallback) { font-weight: 700; color: var(--orange); text-decoration: underline; text-underline-offset: 4px; }
 @supports (scroll-target-group: auto) and selector(:target-current) {
   .chapter-links { scroll-target-group: auto; }
