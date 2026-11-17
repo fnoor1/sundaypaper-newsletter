@@ -247,3 +247,45 @@
 @media print { #page-inspector,.inspect-page,.inspect-fallback,.receipts-continue,.phone-pdf { display: none; } }
 
 #page-inspector:not([open]) { display: none; }
+/* Week 10 ledgers: retain all labels and values in a compact phone layout. */
+@container comparison (width < 38rem) {
+  .table-scroll .standings-table tr { grid-template-columns: 1.75rem 2.3rem minmax(0,1fr) minmax(0,1fr) 3.1rem; gap: 0 .25rem; }
+  .table-scroll .standings-table :is(th,td):nth-child(2) { grid-column: 2 / -1; }
+  .table-scroll .standings-table :is(th,td):nth-child(3) { grid-column: 2; grid-row: 2; text-align: left; }
+  .table-scroll .standings-table :is(th,td):nth-child(4) { grid-column: 3; grid-row: 2; }
+  .table-scroll .standings-table :is(th,td):nth-child(5) { grid-column: 4; grid-row: 2; }
+  .table-scroll .standings-table :is(th,td):nth-child(6) { grid-column: 5; grid-row: 2; }
+  .table-scroll .standings-table :is(th,td) { font-size: .72rem; }
+  .table-scroll .standings-table thead th { font-size: .63rem; }
+}
+@container comparison (width < 38rem) {
+  .scenario-frame .table-scroll, .fixtures-frame .table-scroll, .picks-frame .table-scroll { overflow: visible; max-block-size: none; }
+  .table-scroll :is(.scenario-table,.fixtures-table,.picks-table) { display: block; inline-size: 100%; min-inline-size: 0; }
+  :is(.scenario-table,.fixtures-table,.picks-table) :is(caption,thead,tbody) { display: block; }
+  :is(.scenario-table,.fixtures-table,.picks-table) tr { display: grid; gap: .1rem .25rem; padding-block: .5rem; border-block-end: 1px solid #bcae9b; }
+  .table-scroll :is(.scenario-table,.fixtures-table,.picks-table) :is(th,td) { display:block; position:static; inline-size:auto; min-inline-size:0; padding:0; border:0; background:transparent; font-size:.72rem; line-height:1.5; white-space:normal; overflow-wrap:anywhere; text-align:left; }
+  :is(.scenario-table,.fixtures-table,.picks-table) thead { position:static; background:transparent; border-block:1px solid #8b3b16; }
+  :is(.scenario-table,.fixtures-table,.picks-table) thead tr { padding-block:.375rem; }
+  .table-scroll :is(.scenario-table,.fixtures-table,.picks-table) thead th { color:#655747; font-size:.63rem; line-height:1.3; }
+  .scenario-table tr { grid-template-columns: 1fr 1fr 1.45fr; }
+  .table-scroll .scenario-table :is(th,td):nth-child(1) { grid-column:1 / 3; grid-row:1; font-size:.875rem; }
+  .table-scroll .scenario-table :is(th,td):nth-child(2) { grid-column:3; grid-row:1; text-align:right; }
+  .table-scroll .scenario-table :is(th,td):nth-child(3) { grid-column:1; grid-row:2; }
+  .table-scroll .scenario-table :is(th,td):nth-child(4) { grid-column:2; grid-row:2; }
+  .table-scroll .scenario-table :is(th,td):nth-child(5) { grid-column:3; grid-row:2; text-align:right; }
+  .fixtures-table tr { grid-template-columns: repeat(4,minmax(0,1fr)); }
+  .table-scroll .fixtures-table :is(th,td):first-child { grid-column:1 / -1; grid-row:1; font-size:.875rem; }
+  .picks-table tr { grid-template-columns: 1.4fr 1fr 1fr; }
+  .table-scroll .picks-table :is(th,td):first-child { grid-column:1 / -1; grid-row:1; font-size:.875rem; }
+}
+/* The complete trade audit remains readable on a narrow phone. */
+@media (max-width: 600px) {
+  .method table, .method tbody, .method tr { display:block; width:100%; }
+  .method thead { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+  .method tr { border-bottom:1px solid #746c61; padding: .8rem 0; }
+  .method td, .method th { display:grid; grid-template-columns:minmax(6.2rem, .8fr) minmax(0, 1.2fr); gap:.75rem; width:100%; padding:.2rem 0; text-align:left; white-space:normal; overflow-wrap:anywhere; border:0; }
+  .method td::before, .method th::before { content:attr(data-label); font-size:.72rem; font-weight:bold; color:#fba577; }
+}
+.method table { table-layout: fixed; }
+.method table :is(th,td) { white-space: normal; overflow-wrap: anywhere; }
+@media (max-width: 600px) { .method caption { display: block; width: 100%; } }
