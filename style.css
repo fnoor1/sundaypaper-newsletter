@@ -278,3 +278,26 @@
 .method table { table-layout: fixed; }
 .method table :is(th,td) { white-space: normal; overflow-wrap: anywhere; }
 @media (max-width: 600px) { .method caption { display: block; width: 100%; } }
+
+
+/* The Week 11 film opens the issue above the front page. */
+.film-feature { background: #101619; color: var(--paper); border-bottom: 1px solid var(--line); scroll-margin-top: 5rem; }
+.film-feature-inner { max-width: 1220px; margin: auto; padding: clamp(18px, 3.2vw, 44px) 24px; display: grid; grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr); gap: clamp(24px, 5vw, 70px); align-items: center; }
+.film-kicker { margin: 0; color: var(--orange); font: 700 11px/1.4 Arial,sans-serif; text-transform: uppercase; letter-spacing: .16em; }
+.film-kicker span { margin: 0 .35em; color: var(--muted); }
+.film-copy h2 { margin: .13em 0 .12em; color: var(--paper); font: 400 clamp(62px, 7vw, 98px)/.94 Display,Impact,'Arial Narrow',sans-serif; letter-spacing: -.025em; text-transform: uppercase; }
+.film-copy h2 span { color: var(--orange); }
+.film-deck { max-width: 32ch; margin: 0; color: #e3dcd1; font: 400 clamp(17px, 1.65vw, 23px)/1.35 Georgia,serif; }
+.film-screen { position: relative; background: #080d0f; overflow: hidden; box-shadow: 0 0 0 1px #394043; }
+.film-screen video { display: block; width: 100%; height: auto; aspect-ratio: 16/9; }
+.film-play { position: absolute; inset: 50% auto auto 50%; transform: translate(-50%, -50%); display: inline-flex; align-items: center; gap: .65em; border: 1px solid #fe752a; border-radius: 2px; padding: 0 18px; min-height: 46px; background: #101619; color: #fdf3e6; font: 700 13px/1 Arial,sans-serif; cursor: pointer; white-space: nowrap; }
+.film-play span { color: var(--orange); font-size: 14px; }
+.film-play:hover, .film-play:focus-visible { background: #080d0f; outline: 2px solid var(--paper); outline-offset: 2px; }
+.film-play[hidden] { display: none; }
+@media (max-width: 700px) {
+  .film-feature-inner { grid-template-columns: minmax(0,1fr); gap: 15px; padding: 20px 16px 18px; }
+  .film-copy h2 { font-size: clamp(48px, 11vw, 64px); margin: .12em 0 .07em; }
+  .film-deck { max-width: 48ch; font-size: 16px; }
+  .film-kicker { font-size: 10px; }
+}
+@media print { .film-feature { display: none; } }

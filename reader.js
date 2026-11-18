@@ -218,3 +218,16 @@ phoneMenu.addEventListener('click',event=>{
  const link=event.target.closest('a[href^="#"]');
  if(link&&!link.hasAttribute('data-open-team'))closePhoneContents();
 });
+
+
+const playoffFilm = document.getElementById('playoff-film');
+const filmPlay = document.getElementById('play-film');
+if (playoffFilm && filmPlay) {
+  filmPlay.hidden = false;
+  filmPlay.addEventListener('click', () => {
+    playoffFilm.focus({preventScroll: true});
+    playoffFilm.play().catch(() => { filmPlay.hidden = true; });
+  });
+  playoffFilm.addEventListener('play', () => { filmPlay.hidden = true; });
+  playoffFilm.addEventListener('ended', () => { filmPlay.hidden = false; });
+}
