@@ -8,5 +8,7 @@
   "pages": 8,
   "receipts_count": 4,
   "forecast_updated_at": "2026-11-24T15:59:23.084870+00:00",
-  "forecast_model": "dynamic rolling waivers"
+  "forecast_model": "dynamic rolling waivers",
+  "receipt_layout": "inline",
+  "reader_revision": "week11-mobile-review1"
 }

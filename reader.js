@@ -188,15 +188,6 @@ phone.addEventListener('change',()=>{syncPhoneLayout();setReading(false);request
 const receiptIssuePath=EDITION.issuePath;
 const receiptIssueLabel=`Sunday Paper · First Take $2026 · Week ${EDITION.week}`;
 
-const receiptTabs=[...document.querySelectorAll('.receipt-tabs [role="tab"]')];
-const receiptPanels=receiptTabs.map(tab=>document.getElementById(tab.getAttribute('aria-controls')));
-function chooseReceipt(index,focus=false){receiptTabs.forEach((tab,i)=>{tab.setAttribute('aria-selected',String(i===index));tab.tabIndex=i===index?0:-1;receiptPanels[i].hidden=i!==index;});if(focus)receiptTabs[index].focus();}
-receiptPanels.forEach((panel,i)=>{panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby',receiptTabs[i].id);panel.tabIndex=0;});
-document.querySelector('.receipt-tabs').hidden=false;
-receiptTabs.forEach((tab,i)=>{tab.addEventListener('click',()=>chooseReceipt(i));tab.addEventListener('keydown',event=>{const n=receiptTabs.length;let next;if(event.key==='ArrowRight')next=(i+1)%n;else if(event.key==='ArrowLeft')next=(i+n-1)%n;else if(event.key==='Home')next=0;else if(event.key==='End')next=n-1;else return;event.preventDefault();chooseReceipt(next,true);});});
-function receiptFromHash(){const i=receiptPanels.findIndex(panel=>'#'+panel.id===location.hash);if(i<0)return false;chooseReceipt(i);requestAnimationFrame(()=>receiptPanels[i].scrollIntoView({block:'start'}));return true;}
-if(!receiptFromHash())chooseReceipt(0);
-addEventListener('hashchange',receiptFromHash);
 // Receipt links preserve the artwork and open only the related native story.
 document.querySelectorAll('[data-receipt-story]').forEach(link=>link.addEventListener('click',event=>{event.preventDefault();setReading(false);openStory(Number(link.dataset.receiptChapter),link.dataset.receiptStory);}));
 document.querySelectorAll('[data-copy-receipt]').forEach(button=>{button.hidden=false;button.addEventListener('click',async()=>{
