@@ -1,12 +1,12 @@
 {
   "league": "First Take $2026",
   "season": 2026,
-  "week": 10,
-  "title": "How much fucking more, Kamar?",
+  "week": 11,
+  "title": "The Free Win",
   "results_final": true,
-  "final_evidence": "ESPN Week 10 scoreboard checked 2026-11-17T05:06:29Z marked all 14 NFL events Final and completed. Refreshed Sleeper matchups collected 2026-11-17T05:00:57Z through 05:01:02Z reconcile all 100 submitted starter sums across Weeks 1–10, including all ten Week 10 totals. Five final Week 10 matchups produce 50 total season wins and 50 losses. Sleeper league last_scored_leg remains 9 and is not used as finality evidence.",
+  "final_evidence": "ESPN marked all 13 Week 11 NFL games completed. Sleeper’s last_scored_leg was 11. All ten Week 11 submitted lineups reconcile to their final totals and 110 lineup sums reconcile across Weeks 1–11. Five final Week 11 pairings yield a league total of 55 wins and 55 losses through eleven weeks.",
   "pages": 8,
   "receipts_count": 4,
-  "forecast_updated_at": "2026-11-17T23:05:32.963452+00:00",
+  "forecast_updated_at": "2026-11-24T15:59:23.084870+00:00",
   "forecast_model": "dynamic rolling waivers"
 }

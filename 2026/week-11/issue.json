@@ -1,0 +1,12 @@
+{
+  "league": "First Take $2026",
+  "season": 2026,
+  "week": 11,
+  "title": "The Free Win",
+  "results_final": true,
+  "final_evidence": "ESPN marked all 13 Week 11 NFL games completed. Sleeper’s last_scored_leg was 11. All ten Week 11 submitted lineups reconcile to their final totals and 110 lineup sums reconcile across Weeks 1–11. Five final Week 11 pairings yield a league total of 55 wins and 55 losses through eleven weeks.",
+  "pages": 8,
+  "receipts_count": 4,
+  "forecast_updated_at": "2026-11-24T15:59:23.084870+00:00",
+  "forecast_model": "dynamic rolling waivers"
+}
